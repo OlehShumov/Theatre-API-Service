@@ -5,9 +5,9 @@ from rest_framework.exceptions import ValidationError
 from .models import (
     Performance,
     Play,
+    TheatreHall,
     Genre,
     Actor,
-    TheatreHall,
     Ticket,
     Reservation,
 )
@@ -117,3 +117,23 @@ class PlayDetailSerializer(serializers.ModelSerializer):
                   "actors",
                   "genres")
 
+
+class TheatreHallListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TheatreHall
+        fields = ("id",
+                  "name",
+                  "rows",
+                  "seats_in_row")
+
+
+class TheatreHallDetailSerializer(serializers.ModelSerializer):
+    performances = PerformanceListSerializer(many=True)
+
+    class Meta:
+        model = TheatreHall
+        fields = ("id",
+                  "name",
+                  "rows",
+                  "seats_in_row",
+                  "performances")
