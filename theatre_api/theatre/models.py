@@ -47,10 +47,6 @@ class Performance(models.Model):
                 f"{self.show_time}")
 
 
-class User(AbstractUser):
-    pass
-
-
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
