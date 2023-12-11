@@ -37,8 +37,8 @@ class Play(models.Model):
 
 
 class Performance(models.Model):
-    play = models.ForeignKey(Play, on_delete=models.DO_NOTHING)
-    theatre_hall = models.ForeignKey(TheatreHall, on_delete=models.DO_NOTHING)
+    play = models.ManyToManyField(Play, on_delete=models.DO_NOTHING)
+    theatre_hall = models.ManyToManyField(TheatreHall, on_delete=models.DO_NOTHING)
     show_time = models.DateTimeField()
 
     def __str__(self):
@@ -50,7 +50,7 @@ class Performance(models.Model):
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
-        settings.AUTH_USER_MOODEL, on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -61,8 +61,8 @@ class Reservation(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    performance = models.ForeignKey(Performance, on_delete=models.DO_NOTHING)
-    reservation = models.ForeignKey(Reservation, on_delete=models.DO_NOTHING)
+    performance = models.ManyToManyField(Performance, on_delete=models.DO_NOTHING)
+    reservation = models.ManyToManyField(Reservation, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return (f"{self.row}, "
