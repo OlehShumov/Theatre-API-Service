@@ -51,6 +51,17 @@ class TicketSerializer(serializers.ModelSerializer):
                   "performance",
                   "reservation")
 
+    def validate(self, attrs):
+        performance = attrs.get("performance")
+        row = attrs.get("row")
+        seat = attrs.get("seat")
+        reservation = attrs.get("reservation")
+        if Ticket.objects.filter(performance=performance, row=row, seat=seat).exists():
+            raise ValidationError("This seat is already taken")
+        if reservation and reservation.performance != performance:
+            raise ValidationError("Reservation and performance should be the same")
+        return attrs
+
 
 class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -152,3 +163,4 @@ class ActorListSerializer(serializers.ModelSerializer):
         fields = ("id",
                   "first_name",
                   "last_name")
+
