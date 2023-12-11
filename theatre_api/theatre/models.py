@@ -1,6 +1,6 @@
 from django.db import models
 
-from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 
 class TheatreHall(models.Model):
@@ -53,7 +53,9 @@ class User(AbstractUser):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MOODEL, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return (f"{self.user}, "
