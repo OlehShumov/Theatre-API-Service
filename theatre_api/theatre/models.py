@@ -37,8 +37,8 @@ class Play(models.Model):
 
 
 class Performance(models.Model):
-    play = models.ManyToManyField(Play, on_delete=models.DO_NOTHING)
-    theatre_hall = models.ManyToManyField(TheatreHall, on_delete=models.DO_NOTHING)
+    play = models.ManyToManyField(Play)
+    theatre_hall = models.ManyToManyField(TheatreHall)
     show_time = models.DateTimeField()
 
     def __str__(self):
@@ -61,8 +61,8 @@ class Reservation(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    performance = models.ManyToManyField(Performance, on_delete=models.DO_NOTHING)
-    reservation = models.ManyToManyField(Reservation, on_delete=models.DO_NOTHING)
+    performance = models.ManyToManyField(Performance)
+    reservation = models.ManyToManyField(Reservation)
 
     def __str__(self):
         return (f"{self.row}, "
