@@ -137,3 +137,18 @@ class TheatreHallDetailSerializer(serializers.ModelSerializer):
                   "rows",
                   "seats_in_row",
                   "performances")
+
+
+class GenreListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ("id",
+                  "name")
+
+
+class ActorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actor
+        fields = ("id",
+                  "first_name",
+                  "last_name")
