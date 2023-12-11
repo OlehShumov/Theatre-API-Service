@@ -68,3 +68,30 @@ class PerformanceSerializer(serializers.ModelSerializer):
                   "theatre_hall",
                   "show_time")
 
+
+class PerformanceListSerializer(serializers.ModelSerializer):
+    play = PlaySerializer()
+    theatre_hall = TheatreHallSerializer()
+
+    class Meta:
+        model = Performance
+        fields = ("id",
+                  "play",
+                  "theatre_hall",
+                  "show_time")
+
+
+class PerformanceDetailSerializer(serializers.ModelSerializer):
+    play = PlaySerializer()
+    theatre_hall = TheatreHallSerializer()
+    tickets = TicketSerializer(many=True)
+
+    class Meta:
+        model = Performance
+        fields = ("id",
+                  "play",
+                  "theatre_hall",
+                  "show_time",
+                  "tickets")
+
+
