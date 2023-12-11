@@ -42,6 +42,15 @@ class PlaySerializer(serializers.ModelSerializer):
                   "description")
 
 
+class PerformanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Performance
+        fields = ("id",
+                  "play",
+                  "theatre_hall",
+                  "show_time")
+
+
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
@@ -52,35 +61,35 @@ class TicketSerializer(serializers.ModelSerializer):
                   "reservation")
 
     def validate(self, attrs):
-        performance = attrs.get("performance")
-        row = attrs.get("row")
-        seat = attrs.get("seat")
-        reservation = attrs.get("reservation")
-        if Ticket.objects.filter(performance=performance, row=row, seat=seat).exists():
-            raise ValidationError("This seat is already taken")
-        if reservation and reservation.performance != performance:
-            raise ValidationError("Reservation and performance should be the same")
-        return attrs
+        data = super(TicketSerializer, self).validate(attrs=attrs)
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["seat"],
+            attrs["performance"].theatre_hall,
+        )
+        return data
 
 
 class ReservationSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=True, allow_empty=False)
+
     class Meta:
         model = Reservation
         fields = ("id",
                   "created_at",
-                  "user")
+                  "tickets")
+
+    @transaction.atomic
+    def create(self, validated_data):
+        with transaction.atomic():
+            tickets_data = validated_data.pop('tickets')
+            reservation = Reservation.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(reservation=reservation, **ticket_data)
+        return reservation
 
 
-class PerformanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Performance
-        fields = ("id",
-                  "play",
-                  "theatre_hall",
-                  "show_time")
-
-
-class PerformanceListSerializer(serializers.ModelSerializer):
+class PerformanceListSerializer(PerformanceSerializer):
     play = PlaySerializer()
     theatre_hall = TheatreHallSerializer()
 
@@ -92,7 +101,7 @@ class PerformanceListSerializer(serializers.ModelSerializer):
                   "show_time")
 
 
-class PerformanceDetailSerializer(serializers.ModelSerializer):
+class PerformanceDetailSerializer(PerformanceSerializer):
     play = PlaySerializer()
     theatre_hall = TheatreHallSerializer()
     tickets = TicketSerializer(many=True)
@@ -106,7 +115,7 @@ class PerformanceDetailSerializer(serializers.ModelSerializer):
                   "tickets")
 
 
-class PlayListSerializer(serializers.ModelSerializer):
+class PlayListSerializer(PlaySerializer):
     class Meta:
         model = Play
         fields = ("id",
@@ -114,7 +123,7 @@ class PlayListSerializer(serializers.ModelSerializer):
                   "description")
 
 
-class PlayDetailSerializer(serializers.ModelSerializer):
+class PlayDetailSerializer(PlaySerializer):
     performances = PerformanceListSerializer(many=True)
     actors = ActorSerializer(many=True)
     genres = GenreSerializer(many=True)
@@ -129,7 +138,7 @@ class PlayDetailSerializer(serializers.ModelSerializer):
                   "genres")
 
 
-class TheatreHallListSerializer(serializers.ModelSerializer):
+class TheatreHallListSerializer(TheatreHallSerializer):
     class Meta:
         model = TheatreHall
         fields = ("id",
@@ -138,7 +147,7 @@ class TheatreHallListSerializer(serializers.ModelSerializer):
                   "seats_in_row")
 
 
-class TheatreHallDetailSerializer(serializers.ModelSerializer):
+class TheatreHallDetailSerializer(TheatreHallSerializer):
     performances = PerformanceListSerializer(many=True)
 
     class Meta:
@@ -150,17 +159,28 @@ class TheatreHallDetailSerializer(serializers.ModelSerializer):
                   "performances")
 
 
-class GenreListSerializer(serializers.ModelSerializer):
+class GenreListSerializer(GenreSerializer):
     class Meta:
         model = Genre
         fields = ("id",
                   "name")
 
 
-class ActorListSerializer(serializers.ModelSerializer):
+class ActorListSerializer(ActorSerializer):
     class Meta:
         model = Actor
         fields = ("id",
                   "first_name",
                   "last_name")
 
+
+class TicketListSerializer(TicketSerializer):
+    pass
+
+
+class ReservationListSerializer(ReservationSerializer):
+    class Meta:
+        model = Reservation
+        fields = ("id",
+                  "created_at",
+                  "user")
