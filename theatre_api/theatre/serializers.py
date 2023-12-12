@@ -62,9 +62,6 @@ class PlayListSerializer(PlaySerializer):
 class PlayDetailSerializer(PlaySerializer):
     actors = ActorSerializer(many=True)
     genres = GenreSerializer(many=True)
-    performances = serializers.SlugRelatedField(many=True,
-                                                read_only=True,
-                                                slug_field="show_time")
 
     class Meta:
         model = Play
@@ -73,11 +70,34 @@ class PlayDetailSerializer(PlaySerializer):
                   "description",
                   "duration",
                   "actors",
-                  "genres",
-                  "performances")
+                  "genres",)
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Performance
+        fields = ("id",
+                  "play",
+                  "theatre_hall",
+                  "show_time")
+
+
+class PerformanceListSerializer(PerformanceSerializer):
+    play = serializers.SlugRelatedField(slug_field="title", read_only=True)
+    theatre_hall = serializers.SlugRelatedField(slug_field="name", read_only=True)
+
+    class Meta:
+        model = Performance
+        fields = ("id",
+                  "play",
+                  "theatre_hall",
+                  "show_time")
+
+
+class PerformanceDetailSerializer(PerformanceSerializer):
+    play = PlaySerializer()
+    theatre_hall = TheatreHallSerializer()
+
     class Meta:
         model = Performance
         fields = ("id",
@@ -94,6 +114,7 @@ class TicketSerializer(serializers.ModelSerializer):
                   "seat",
                   "performance",
                   "reservation")
+
 
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs=attrs)
