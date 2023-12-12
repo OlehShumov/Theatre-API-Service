@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema
 from drf_spectacular.utils import OpenApiParameter, OpenApiTypes
 from rest_framework.pagination import PageNumberPagination
 
+from .permissions import IsAdminOrIfAuthenticatedReadOnly
 from .models import (
     Performance,
     Play,
@@ -36,6 +37,7 @@ class GenreViewSet(
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class ActorViewSet(
@@ -45,6 +47,7 @@ class ActorViewSet(
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class TheatreHallViewSet(
@@ -54,6 +57,7 @@ class TheatreHallViewSet(
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PlayViewSet(
@@ -64,6 +68,7 @@ class PlayViewSet(
 ):
     queryset = Play.objects.prefetch_related("actors", "genres")
     serializer_class = PlaySerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _param_to_int(qs):
@@ -93,6 +98,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     queryset = Performance.objects.select_related("play",
                                                   "theatre_hall")
     serializer_class = PerformanceSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -130,6 +136,7 @@ class TicketViewSet(
 ):
     queryset = Ticket.objects.prefetch_related("reservation", "performance")
     serializer_class = TicketSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class ReservationPagination(PageNumberPagination):
@@ -145,4 +152,4 @@ class ReservationViewSet(
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
     pagination_class = ReservationPagination
-
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
