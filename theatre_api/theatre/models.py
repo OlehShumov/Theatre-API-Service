@@ -26,8 +26,11 @@ class Actor(models.Model):
     last_name = models.CharField(max_length=63)
 
     def __str__(self):
-        return (f"{self.first_name}, "
-                f"{self.last_name}")
+        return self.first_name + " " + self.last_name
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Play(models.Model):
