@@ -1,7 +1,9 @@
 from rest_framework import mixins
+from rest_framework import viewsets
 from rest_framework.viewsets import GenericViewSet
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.utils import OpenApiParameter, OpenApiTypes
+from rest_framework.pagination import PageNumberPagination
 
 from .models import (
     Performance,
@@ -30,7 +32,7 @@ from .serializers import (
 class GenreViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet,
+    viewsets.GenericViewSet,
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
@@ -39,7 +41,7 @@ class GenreViewSet(
 class ActorViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet,
+    viewsets.GenericViewSet,
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
@@ -48,7 +50,7 @@ class ActorViewSet(
 class TheatreHallViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet,
+    viewsets.GenericViewSet,
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
@@ -56,8 +58,9 @@ class TheatreHallViewSet(
 
 class PlayViewSet(
     mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
-    GenericViewSet,
+    viewsets.GenericViewSet,
 ):
     queryset = Play.objects.prefetch_related("actors", "genres")
     serializer_class = PlaySerializer
@@ -86,11 +89,7 @@ class PlayViewSet(
         return PlaySerializer
 
 
-class PerformanceViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet,
-):
+class PerformanceViewSet(viewsets.ModelViewSet):
     queryset = Performance.objects.select_related("play",
                                                   "theatre_hall")
     serializer_class = PerformanceSerializer
@@ -99,6 +98,7 @@ class PerformanceViewSet(
         queryset = self.queryset
         date = self.request.query_params.get("date")
         if date:
+
             queryset = queryset.filter(show_time__date=date)
         return queryset
 
@@ -132,6 +132,11 @@ class TicketViewSet(
     serializer_class = TicketSerializer
 
 
+class ReservationPagination(PageNumberPagination):
+    page_size = 5
+    max_page_size = 100
+
+
 class ReservationViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -139,4 +144,5 @@ class ReservationViewSet(
 ):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    pagination_class = ReservationPagination
 
