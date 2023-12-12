@@ -18,6 +18,8 @@ from .serializers import (
     ActorSerializer,
     TicketSerializer,
     ReservationSerializer,
+    PlayListSerializer,
+    PlayDetailSerializer
 )
 
 
@@ -53,8 +55,31 @@ class PlayViewSet(
     mixins.ListModelMixin,
     GenericViewSet,
 ):
-    queryset = Play.objects.all()
+    queryset = Play.objects.prefetch_related("actors", "genres")
     serializer_class = PlaySerializer
+
+    @staticmethod
+    def _param_to_int(qs):
+        return [int(str_id) for str_id in qs.split(",")]
+
+    def get_queryset(self):
+        genres = self.request.query_params.get("genres")
+        actors = self.request.query_params.get("actors")
+        queryset = self.queryset
+        if genres:
+            genre_ids = self._param_to_int(genres)
+            queryset = queryset.filter(genres__id__in=genre_ids)
+        if actors:
+            actor_ids = self._param_to_int(actors)
+            queryset = queryset.filter(actors__id__in=actor_ids)
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PlayListSerializer
+        elif self.action == "retrieve":
+            return PlayDetailSerializer
+        return PlaySerializer
 
 
 class PerformanceViewSet(
