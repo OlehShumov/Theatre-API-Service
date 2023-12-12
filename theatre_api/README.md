@@ -2,6 +2,8 @@
 
 Welcome to the Theatre API Service! This API is a Django-based web application designed to manage theatrical performances, theatre sessions, reservations, and related data for a theatre. It provides various endpoints for administrators and authenticated users to interact with the system, offering features such as viewing and filtering performances, managing show sessions, creating reservations, and more.
 
+<img width="1433" alt="Знімок екрана 2023-12-12 о 20 54 23" src="https://github.com/OlehShumov/Theatre-API-Service/assets/145033206/d553f9ca-5e31-4355-b600-81f34662e0bb">
+
 
 **Demo Credentials:**
 - Username: `test_user`
@@ -129,6 +131,10 @@ docker-compose up
 - **Partial Update** `PATCH /api/planetarium/theatres/{theatre_id}/`
 - **Delete Theathe hall**: `DELETE /api/planetarium/theatres/{theatre_id}/`
 </details>
+
+## DB Structure<img width="840" alt="Знімок екрана 2023-12-12 о 22 04 50" src="https://github.com/OlehShumov/Theatre-API-Service/assets/145033206/f2ccd646-8527-407f-a6fb-5b45883b7b47">
+
+
 
 
 ## Authentication
