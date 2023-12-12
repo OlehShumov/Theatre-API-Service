@@ -33,6 +33,8 @@ class Actor(models.Model):
 class Play(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    actors = models.ManyToManyField(Actor)
+    genres = models.ManyToManyField(Genre)
 
     def __str__(self):
         return self.title
