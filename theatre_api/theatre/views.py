@@ -1,5 +1,7 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes
 
 from .models import (
     Performance,
@@ -19,7 +21,9 @@ from .serializers import (
     TicketSerializer,
     ReservationSerializer,
     PlayListSerializer,
-    PlayDetailSerializer
+    PlayDetailSerializer,
+    PerformanceListSerializer,
+    PerformanceDetailSerializer,
 )
 
 
@@ -87,8 +91,36 @@ class PerformanceViewSet(
     mixins.ListModelMixin,
     GenericViewSet,
 ):
-    queryset = Performance.objects.all()
+    queryset = Performance.objects.select_related("play",
+                                                  "theatre_hall")
     serializer_class = PerformanceSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        date = self.request.query_params.get("date")
+        if date:
+            queryset = queryset.filter(show_time__date=date)
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PerformanceListSerializer
+        elif self.action == "retrieve":
+            return PerformanceDetailSerializer
+        return PerformanceSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="date",
+                description="Filter performances by date",
+                required=False,
+                type=OpenApiTypes.DATE,
+            ),
+        ],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class TicketViewSet(
